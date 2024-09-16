@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Guardian - Report an Incident</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .report-container {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #FFD166;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        #submit-btn {
+            background-color: #06D6A0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #submit-btn:hover {
+            background-color: #04A67C;
+        }
+        #ai-guidance {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #EF476F;
+            color: white;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Report an Incident</h1>
+        <div class="report-container">
+            <form id="report-form">
+                <div class="form-group">
+                    <label for="incident-type">What type of incident are you reporting?</label>
+                    <input type="text" id="incident-type" name="incident-type" required>
+                </div>
+                <div class="form-group">
+                    <label for="incident-description">Can you describe what happened?</label>
+                    <textarea id="incident-description" name="incident-description" required></textarea>
+                </div>
+                <button type="submit" id="submit-btn">Submit Report</button>
+            </form>
+            <div id="ai-guidance"></div>
+        </div>
+    </div>
+    <script src="report.js"></script>
+</body>
+</html>
+<a href="index.html" style="position: absolute; top: 10px; left: 10px; color: white;">Back to Chat</a>
