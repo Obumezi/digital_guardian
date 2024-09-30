@@ -1,0 +1,554 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+body {
+    font-family: 'Bubblegum Sans', cursive;
+    background: linear-gradient(135deg, #6EE7B7, #3B82F6);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.chat-container {
+    width: 90%;
+    max-width: 800px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    position: relative;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.chat-container:hover {
+    transform: translateY(-5px);
+}
+
+h1 {
+    background-color: #FF6B6B;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+    font-size: 32px;
+    text-shadow: 2px 2px #FF8787;
+    letter-spacing: 2px;
+}
+
+#chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    padding: 20px;
+    background-image: url('https://example.com/cartoon-cybersecurity-background.jpg');
+    background-size: cover;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 20px;
+    max-width: 80%;
+    animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes bounce-in {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.user-message {
+    background-color: #FFD93D;
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.bot-message {
+    background-color: #4ECCA3;
+    align-self: flex-start;
+}
+
+.input-area {
+    display: flex;
+    padding: 20px;
+    background-color: #6EE7B7;
+}
+
+#user-input {
+    flex-grow: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 25px;
+    font-size: 18px;
+    background-color: white;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#send-btn {
+    background-color: #FF6B6B;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    margin-left: 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+#send-btn:hover {
+    background-color: #FF8787;
+    transform: scale(1.05);
+}
+
+.learning-section {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background-color: #4ECCA3;
+}
+
+.learning-section button {
+    background-color: #FFD93D;
+    color: #333;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.learning-section button:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+#learning-content {
+    background: var(--content-bg);
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+    width: 90%;
+    max-width: 800px;
+    margin-bottom: 100px;
+}
+
+.learning-content ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.learning-content li {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.learning-content li:last-child {
+    border-bottom: none;
+}
+
+.learning-content h3 {
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: clamp(1.1em, 3vw, 1.3em);
+}
+
+.learning-content p {
+    color: var(--text);
+    line-height: 1.6;
+    font-size: clamp(0.9em, 2.5vw, 1em);
+    margin-bottom: 10px;
+}
+
+.learning-content .fun-fact {
+    background-color: #f0f8ff;
+    border-left: 4px solid var(--accent);
+    padding: 10px;
+    margin-top: 10px;
+    font-style: italic;
+    font-size: clamp(0.8em, 2vw, 0.9em);
+}
+
+@media (max-width: 600px) {
+    #learning-content {
+        padding: 15px;
+        margin: 10px auto;
+        width: 95%;
+    }
+
+    .learning-content li {
+        margin-bottom: 20px;
+    }
+}
+
+/* Add some game-like elements */
+.score-board {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #FFD93D;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.achievement {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4ECCA3;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    animation: slide-up 0.5s ease-out;
+}
+
+@keyframes slide-up {
+    0% { transform: translate(-50%, 100%); opacity: 0; }
+    100% { transform: translate(-50%, 0); opacity: 1; }
+}
+/* new css  */
+
+/*  */
+
+
+
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Fredoka+One&display=swap');
+
+:root {
+  --primary: #4a90e2;
+  --secondary: #34495e;
+  --accent: #ff6b6b;
+  --background: #f0f8ff;
+  --text: #333;
+  --light-text: #666;
+  --white: #ffffff;
+  --success: #2ecc71;
+  --warning: #f1c40f;
+  --error: #e74c3c;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+header {
+  background-color: var(--primary);
+  color: var(--white);
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2, h3 {
+  font-family: 'Fredoka One', cursive;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  text-align: center;
+}
+
+h2 {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: var(--secondary);
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+#learning-content {
+  background-color: var(--white);
+  border-radius: 15px;
+  padding: 2rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+#learning-content:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+ul {
+  list-style-type: none;
+}
+
+li {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+.button {
+  display: inline-block;
+  background-color: var(--primary);
+  color: var(--white);
+  padding: 0.75rem 1.5rem;
+  border-radius: 30px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ... (previous styles remain unchanged) */
+
+.bottom-dock {
+  background-color: var(--white);
+  padding: 0.5rem 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dock-items {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.dock-item {
+  color: var(--light-text);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
+  width: 25%;
+  max-width: 100px;
+}
+
+.dock-item i {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.dock-item span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.dock-item:hover, .dock-item.active {
+  color: var(--primary);
+  transform: translateY(-5px);
+}
+
+/* Add some padding to the bottom of the content to prevent overlap with the dock */
+.content {
+  padding-bottom: 80px;
+}
+
+@media (max-width: 768px) {
+  .dock-item {
+    padding: 0.25rem;
+  }
+
+  .dock-item i {
+    font-size: 1.25rem;
+  }
+
+  .dock-item span {
+    font-size: 0.7rem;
+  }
+}
+
+/* ... (rest of the styles remain unchanged) */
+
+.dock-item:hover, .dock-item.active {
+  color: var(--primary);
+  transform: translateY(-5px);
+}
+
+.fun-fact {
+  background-color: #fff9c4;
+  border-left: 4px solid var(--warning);
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 0 15px 15px 0;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  .content {
+    padding: 1rem 0;
+  }
+
+  #learning-content {
+    padding: 1.5rem;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
+
+.bounce {
+  animation: bounce 2s infinite;
+}
+
+
+/* game  */
+
+/* ... (previous styles remain unchanged) */
+
+.game-scenario {
+  background-color: var(--white);
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.game-option {
+  padding: 1rem;
+  border: 2px solid var(--primary);
+  background-color: var(--white);
+  color: var(--primary);
+  transition: all 0.3s ease;
+}
+
+.game-option:hover {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.game-option.correct {
+  background-color: var(--success);
+  color: var(--white);
+  border-color: var(--success);
+}
+
+.game-option.incorrect {
+  background-color: var(--error);
+  color: var(--white);
+  border-color: var(--error);
+}
+
+.explanation {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--background);
+  border-radius: 10px;
+  font-style: italic;
+}
+
+.next-scenario {
+  margin-top: 1rem;
+}
+
+.score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--primary);
+  margin-top: 1rem;
+}
+
+/* ... (rest of the styles remain unchanged) */
