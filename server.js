@@ -20,20 +20,27 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Existing routes
 app.post('/chat', async (req, res) => {
     try {
         const { message } = req.body;
-        
         const prompt = `
-        You are a friendly and supportive chatbot for kids, helping them with bullying issues. 
+        You are a friendly and supportive chatbot for kids, helping them with online safety issues. 
         The child said: "${message}"
         Provide a caring, age-appropriate response that:
         1. Acknowledges their feelings
         2. Offers support and encouragement
-        3. Gives practical advice on how to handle bullying
+        3. Gives practical advice on how to handle online safety issues
         4. Encourages them to talk to a trusted adult if necessary
-        Keep the response concise and easy to understand for children.
+
+        Structure your response with clear paragraphs and use the following prefixes for different types of information:
+        - Start important points with "!Important:"
+        - Start tips with "Tip:"
+        - Start reminders with "Remember:"
+        - Start things to avoid with "Never:"
+
+        Use a new line for each new point or piece of advice.
+        Keep the response concise, easy to understand for children aged 8-12, and always maintain a positive, supportive tone.
+        Avoid any inappropriate or sensitive content.
         `;
 
         const result = await model.generateContent(prompt);
@@ -47,62 +54,7 @@ app.post('/chat', async (req, res) => {
     }
 });
 
-app.post('/guidance', async (req, res) => {
-    try {
-        const { prompt } = req.body;
-        
-        const result = await model.generateContent(prompt);
-        const response = result.response;
-        const text = response.text();
-
-        res.json({ guidance: text });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: 'An error occurred while processing your request.' });
-    }
-});
-
-app.post('/quiz', async (req, res) => {
-    try {
-        const prompt = `
-        Generate a fun cybersecurity quiz question for children with 4 multiple-choice options.
-        Include the correct answer and a brief, child-friendly explanation.
-        Format: 
-        Question: [Question text]
-        A. [Option A]
-        B. [Option B]
-        C. [Option C]
-        D. [Option D]
-        Correct Answer: [A/B/C/D]
-        Explanation: [Brief explanation]
-        `;
-        
-        const result = await model.generateContent(prompt);
-        const quizContent = result.response.text();
-        
-        // Parse the quiz content
-        const lines = quizContent.split('\n');
-        const question = lines[0].replace('Question: ', '');
-        const options = lines.slice(1, 5).map(line => line.trim());
-        const correctAnswer = lines[5].replace('Correct Answer: ', '');
-        const explanation = lines[6].replace('Explanation: ', '');
-
-        // Create a JSON object with the quiz data
-        const quizData = {
-            question,
-            options,
-            correctAnswer,
-            explanation
-        };
-
-        res.json(quizData);
-    } catch (error) {
-        console.error('Error generating quiz question:', error);
-        res.status(500).json({ error: 'Failed to generate quiz question' });
-    }
-});
-
-// ... (previous code remains unchanged)
+// ... (other routes remain unchanged)
 
 app.post('/game', async (req, res) => {
     const maxRetries = 3;
@@ -129,13 +81,31 @@ app.post('/game', async (req, res) => {
                 "explanation": "Simple explanation of the correct choice"
             }
             Ensure all content is appropriate for children and avoids any sensitive topics.
+            Do not include any markdown formatting, code block indicators, or additional text outside the JSON object in your response.
             `;
-            
+
             const result = await model.generateContent(prompt);
-            const gameScenario = result.response.text();
-            
+            let gameScenario = result.response.text();
+
+            console.log('Raw AI response:', gameScenario);
+
+            // Clean the response
+            gameScenario = gameScenario.replace(/```json\s?|\s?```/g, '').trim();
+
+            // Remove any text before or after the JSON object
+            const jsonStartIndex = gameScenario.indexOf('{');
+            const jsonEndIndex = gameScenario.lastIndexOf('}') + 1;
+            if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
+                gameScenario = gameScenario.slice(jsonStartIndex, jsonEndIndex);
+            }
+
+            console.log('Cleaned response:', gameScenario);
+
             // Parse and validate the JSON response
             const parsedScenario = JSON.parse(gameScenario);
+
+            console.log('Parsed scenario:', parsedScenario);
+
             if (validateScenario(parsedScenario)) {
                 res.json(parsedScenario);
                 return;
@@ -146,7 +116,7 @@ app.post('/game', async (req, res) => {
             console.error(`Attempt ${retries + 1} failed:`, error);
             retries++;
             if (retries >= maxRetries) {
-                res.status(500).json({ error: 'Failed to generate a safe game scenario after multiple attempts' });
+                res.status(500).json({ error: 'Failed to generate a safe game scenario after multiple attempts', details: error.message });
             }
         }
     }
@@ -166,99 +136,82 @@ function validateScenario(scenario) {
     );
 }
 
-// ... (rest of the code remains unchanged)
+// ... (rest of the server code remains unchanged)
 
-app.post('/simulation', async (req, res) => {
-    try {
-        const prompt = `
-        Generate a simulated email that could be a phishing attempt.
-        Include subtle clues that it might be fake.
-        Then provide an analysis of the email, pointing out the suspicious elements.
-        Format:
-        Email:
-        [Simulated email content]
-        
-        Analysis:
-        [Points highlighting suspicious elements]
-        `;
-        
-        const result = await model.generateContent(prompt);
-        const phishingSimulation = result.response.text();
-        
-        res.json({ phishingSimulation: phishingSimulation });
-    } catch (error) {
-        console.error('Error generating phishing simulation:', error);
-        res.status(500).json({ error: 'Failed to generate phishing simulation' });
-    }
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
 
-// ... (previous code remains unchanged)
-
-app.post('/resources', async (req, res) => {
+app.get('/resources', async (req, res) => {
     try {
-        const prompt = `
-        Generate a list of 5 genuine cybersecurity resources for kids aged 8-12. For each resource, include:
-        1. A title
-        2. A brief description (1-2 sentences)
-        3. A fun fact or tip related to the resource
-        4. A genuine URL to the resource (use real, existing websites)
-    
-        Format the response as a JSON array of objects, each containing 'title', 'description', 'funFact', and 'url' properties.
-        Do not include any markdown formatting or code block indicators.
-        `;
-    
-        const result = await model.generateContent(prompt);
-        let resourcesContent = result.response.text();
-    
-        console.log('Raw AI response:', resourcesContent);
-
-        // Remove any markdown formatting if present
-        resourcesContent = resourcesContent.replace(/```json\s?|\s?```/g, '').trim();
-
-        // Parse the content as JSON
-        let resources;
-        try {
-            resources = JSON.parse(resourcesContent);
-        } catch (parseError) {
-            console.error('Error parsing AI response:', parseError);
-            console.log('Cleaned AI response:', resourcesContent);
-            
-            // If parsing fails, attempt to extract resource objects
-            resources = extractResourceObjects(resourcesContent);
-        }
-    
-        // Ensure the parsed content is an array
-        if (!Array.isArray(resources)) {
-            resources = [resources];
-        }
-    
-        res.json({ resources });
+        const resources = await generateResources();
+        res.json({ resources: resources });
     } catch (error) {
         console.error('Error generating resources:', error);
         res.status(500).json({ error: 'Failed to generate resources', details: error.message });
     }
 });
 
-// ... (rest of the code remains unchanged)
+async function generateResources() {
+    const prompt = `
+    Generate 4 online safety resources for children aged 8-12. Each resource should include:
+    1. A title
+    2. A brief description (1-2 sentences)
+    3. A fun fact related to the topic
+    4. A fictional URL for more information
 
-function extractResourceObjects(content) {
-    const resourceRegex = /\{[^}]+\}/g;
-    const matches = content.match(resourceRegex);
+    Topics should cover different aspects of online safety, such as:
+    - Cyberbullying prevention
+    - Password security
+    - Privacy protection
+    - Safe social media use
+    - Recognizing online scams
+    - Digital footprint awareness
+
+    Format the response as a JSON array of objects, each with keys: title, description, funFact, and url.
+    Ensure all content is age-appropriate and engaging for children.
+    Do not include any markdown formatting, code block indicators, or additional text outside the JSON array in your response.
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
     
-    if (matches) {
-        return matches.map(match => {
-            try {
-                return JSON.parse(match);
-            } catch (error) {
-                console.error('Error parsing resource object:', error);
-                return null;
-            }
-        }).filter(resource => resource !== null);
+    console.log('Raw AI response:', text);
+
+    // Clean the response
+    text = text.replace(/```json\s?|\s?```/g, '').trim();
+    
+    // Remove any text before or after the JSON array
+    const jsonStartIndex = text.indexOf('[');
+    const jsonEndIndex = text.lastIndexOf(']') + 1;
+    if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
+        text = text.slice(jsonStartIndex, jsonEndIndex);
+    } else {
+        throw new Error('Invalid response format: JSON array not found');
     }
-    
-    return [];
-}
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+    console.log('Cleaned response:', text);
+
+    // Parse the JSON response
+    try {
+        const resources = JSON.parse(text);
+        
+        // Validate the structure of each resource
+        if (!Array.isArray(resources) || resources.length !== 4) {
+            throw new Error('Invalid response format: Expected an array of 4 resources');
+        }
+        
+        resources.forEach((resource, index) => {
+            if (!resource.title || !resource.description || !resource.funFact || !resource.url) {
+                throw new Error(`Invalid resource format at index ${index}`);
+            }
+        });
+
+        return resources;
+    } catch (error) {
+        console.error('Error parsing JSON:', error);
+        console.error('Raw text:', text);
+        throw new Error('Failed to parse resources: ' + error.message);
+    }
+}

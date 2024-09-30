@@ -19,14 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadResources();
                 break;
             case 'chat':
-                learningContent.innerHTML = `
-                    <h2>Chat with Digital Guardian</h2>
-                    <p>Our AI assistant is here to answer your questions about online safety.</p>
-                    <button id="start-chat" class="button">
-                        <i class="fas fa-robot"></i> Start Chat
-                    </button>
-                `;
-                document.getElementById('start-chat').addEventListener('click', startChat);
+                displayChatInterface();
                 break;
             case 'game':
                 loadGameScenario();
@@ -37,22 +30,22 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadResources() {
         try {
             const response = await fetch('/resources', {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-    
+
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}`);
             }
-    
+
             const data = await response.json();
-    
+
             if (!data.resources || !Array.isArray(data.resources)) {
                 throw new Error('Invalid response format');
             }
-    
+
             displayResources(data.resources);
         } catch (error) {
             console.error('Error:', error);
@@ -66,20 +59,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        let html = '<h2>Cybersecurity Resources</h2><ul>';
+        let html = '<h2>Online Safety Resources</h2><div class="resource-grid">';
         resources.forEach(resource => {
             html += `
-                <li>
+                <div class="resource-card">
                     <h3>${resource.title}</h3>
                     <p>${resource.description}</p>
                     <div class="fun-fact">
                         <strong>Fun Fact:</strong> ${resource.funFact}
                     </div>
-                    <p><a href="${resource.url}" target="_blank" rel="noopener noreferrer" class="button">Visit Resource</a></p>
-                </li>
+                    <a href="${resource.url}" target="_blank" rel="noopener noreferrer" class="button">Learn More</a>
+                </div>
             `;
         });
-        html += '</ul>';
+        html += '</div>';
         learningContent.innerHTML = html;
     }
 
@@ -106,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayGameScenario(scenario) {
         let html = `
-            <h2>Interland-inspired Safety Game</h2>
+            <h2>Digital Guardian online Safety Quiz</h2>
             <div class="game-scenario">
                 <h3>${scenario.theme}</h3>
                 <p>${scenario.scenario}</p>
@@ -165,6 +158,113 @@ document.addEventListener('DOMContentLoaded', () => {
     function startChat() {
         console.log('Starting chat...');
         // Implement chat functionality here
+    }
+
+    function displayChatInterface() {
+        learningContent.innerHTML = `
+            <h2>Chat with Digital Guardian</h2>
+            <div id="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Type your message here...">
+                <button id="send-btn" class="button">Send</button>
+            </div>
+        `;
+
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatMessages = document.getElementById('chat-messages');
+
+        sendBtn.addEventListener('click', () => sendMessage(userInput, chatMessages));
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage(userInput, chatMessages);
+            }
+        });
+    }
+
+    async function sendMessage(userInput, chatMessages) {
+        const message = userInput.value.trim();
+        if (message === '') return;
+
+        // Display user message
+        displayMessage(chatMessages, message, 'user');
+        userInput.value = '';
+
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+
+            const data = await response.json();
+            displayMessage(chatMessages, data.reply, 'bot');
+        } catch (error) {
+            console.error('Error:', error);
+            displayMessage(chatMessages, 'Sorry, I had trouble understanding that. Can you try again?', 'bot');
+        }
+    }
+    function displayMessage(chatMessages, message, sender) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', `${sender}-message`);
+    
+        if (sender === 'bot') {
+            messageElement.innerHTML = `
+                <div class="bot-message-header">Digital Guardian says:</div>
+                <div class="bot-message-content">${formatBotMessage(message)}</div>
+                <div class="bot-message-footer">Remember, stay safe online!</div>
+            `;
+        } else {
+            messageElement.textContent = message;
+        }
+    
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function formatBotMessage(message) {
+        // Split the message into paragraphs
+        const paragraphs = message.split('\n').filter(p => p.trim() !== '');
+    
+        // Process each paragraph
+        const formattedParagraphs = paragraphs.map(paragraph => {
+            if (paragraph.startsWith('!Important:')) {
+                return `<div class="advice-block">
+                            <span class="advice-icon">❗</span>
+                            <span class="advice-title">Important:</span>
+                            <p>${paragraph.replace('!Important:', '').trim()}</p>
+                        </div>`;
+            } else if (paragraph.startsWith('Tip:')) {
+                return `<div class="advice-block">
+                            <span class="advice-icon">💡</span>
+                            <span class="advice-title">Tip:</span>
+                            <p>${paragraph.replace('Tip:', '').trim()}</p>
+                        </div>`;
+            } else if (paragraph.startsWith('Remember:')) {
+                return `<div class="advice-block">
+                            <span class="advice-icon">🔔</span>
+                            <span class="advice-title">Remember:</span>
+                            <p>${paragraph.replace('Remember:', '').trim()}</p>
+                        </div>`;
+            } else if (paragraph.startsWith('Never:')) {
+                return `<div class="advice-block">
+                            <span class="advice-icon">🚫</span>
+                            <span class="advice-title">Never:</span>
+                            <p>${paragraph.replace('Never:', '').trim()}</p>
+                        </div>`;
+            } else {
+                return `<p>${paragraph}</p>`;
+            }
+        });
+    
+        // Join the formatted paragraphs
+        return formattedParagraphs.join('');
     }
 
     dockItems.forEach(item => {
