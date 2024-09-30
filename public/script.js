@@ -29,27 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadResources() {
         try {
-            const response = await fetch('/resources', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            const response = await fetch('/resources');
 
             if (!response.ok) {
-                throw new Error(`Server responded with ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(`Server error: ${errorData.details}. Raw response: ${errorData.rawResponse}`);
             }
 
             const data = await response.json();
 
-            if (!data.resources || !Array.isArray(data.resources)) {
+            if (!data.resources || !Array.isArray(data.resources) || data.resources.length === 0) {
                 throw new Error('Invalid response format');
             }
 
             displayResources(data.resources);
         } catch (error) {
             console.error('Error:', error);
-            learningContent.innerHTML = `<p>Error loading resources. Please try again later.</p>`;
+            learningContent.innerHTML = `<p>Error loading resources: ${error.message}. Please try again later.</p>`;
         }
     }
 

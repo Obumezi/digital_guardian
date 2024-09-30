@@ -148,7 +148,11 @@ app.get('/resources', async (req, res) => {
         res.json({ resources: resources });
     } catch (error) {
         console.error('Error generating resources:', error);
-        res.status(500).json({ error: 'Failed to generate resources', details: error.message });
+        res.status(500).json({ 
+            error: 'Failed to generate resources', 
+            details: error.message,
+            rawResponse: error.rawResponse // Add this line
+        });
     }
 });
 
@@ -168,9 +172,8 @@ async function generateResources() {
     - Recognizing online scams
     - Digital footprint awareness
 
-    Format the response as a JSON array of objects, each with keys: title, description, funFact, and url.
+    Provide the response as a simple list, not in JSON format.
     Ensure all content is age-appropriate and engaging for children.
-    Do not include any markdown formatting, code block indicators, or additional text outside the JSON array in your response.
     `;
 
     const result = await model.generateContent(prompt);
@@ -179,39 +182,55 @@ async function generateResources() {
     
     console.log('Raw AI response:', text);
 
-    // Clean the response
-    text = text.replace(/```json\s?|\s?```/g, '').trim();
+    // Parse the text response into structured data
+    const resources = parseResourcesFromText(text);
+
+    console.log('Parsed resources:', resources);
+
+    if (resources.length !== 4) {
+        throw new Error(`Expected 4 resources, but got ${resources.length}`);
+    }
+
+    return resources;
+}
+
+function parseResourcesFromText(text) {
+    const resources = [];
+    let currentResource = {};
     
-    // Remove any text before or after the JSON array
-    const jsonStartIndex = text.indexOf('[');
-    const jsonEndIndex = text.lastIndexOf(']') + 1;
-    if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
-        text = text.slice(jsonStartIndex, jsonEndIndex);
-    } else {
-        throw new Error('Invalid response format: JSON array not found');
-    }
-
-    console.log('Cleaned response:', text);
-
-    // Parse the JSON response
-    try {
-        const resources = JSON.parse(text);
-        
-        // Validate the structure of each resource
-        if (!Array.isArray(resources) || resources.length !== 4) {
-            throw new Error('Invalid response format: Expected an array of 4 resources');
-        }
-        
-        resources.forEach((resource, index) => {
-            if (!resource.title || !resource.description || !resource.funFact || !resource.url) {
-                throw new Error(`Invalid resource format at index ${index}`);
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+    
+    for (const line of lines) {
+        if (line.match(/^\d+\./)) {
+            // New resource starts
+            if (Object.keys(currentResource).length) {
+                resources.push(currentResource);
+                currentResource = {};
             }
-        });
-
-        return resources;
-    } catch (error) {
-        console.error('Error parsing JSON:', error);
-        console.error('Raw text:', text);
-        throw new Error('Failed to parse resources: ' + error.message);
+            currentResource.title = line.replace(/^\d+\./, '').trim();
+        } else if (line.toLowerCase().includes('description:')) {
+            currentResource.description = line.replace(/^.*?description:/i, '').trim();
+        } else if (line.toLowerCase().includes('fun fact:')) {
+            currentResource.funFact = line.replace(/^.*?fun fact:/i, '').trim();
+        } else if (line.toLowerCase().includes('url:')) {
+            currentResource.url = line.replace(/^.*?url:/i, '').trim();
+        } else if (currentResource.title && !currentResource.description) {
+            // If we have a title but no description, assume this line is the description
+            currentResource.description = line;
+        }
     }
+    
+    if (Object.keys(currentResource).length) {
+        resources.push(currentResource);
+    }
+    
+    // Ensure all resources have all required fields
+    resources.forEach((resource, index) => {
+        if (!resource.title) resource.title = `Resource ${index + 1}`;
+        if (!resource.description) resource.description = 'No description provided.';
+        if (!resource.funFact) resource.funFact = 'No fun fact available.';
+        if (!resource.url) resource.url = '#';
+    });
+    
+    return resources;
 }
